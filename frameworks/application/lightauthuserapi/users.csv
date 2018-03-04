@@ -1,0 +1,3 @@
+username,password,enabled,roles,claim1,claim2
+test,939c1f673b7f5f5c991b4d4160642e72880e783ba4d7b04da260392f855214a6,true,TEST,8f0daa02-4f89-4ad8-9db9-d1d8bcc60f07,d70e6e06-a8b7-4daf-a2d0-476acd396e82
+admin,50b911deac5df04e0a79ef18b04b29b245b8f576dcb7e5cca5937eb2083438ba,true,ADMIN:API,83df72c5-f3e7-47a4-bd1b-a8d7e8f6db0f,90a08fec-783f-48b0-b2ac-325f71f6ebfb

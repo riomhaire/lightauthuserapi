@@ -1,0 +1,37 @@
+---
+- hosts: empire
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  tasks:
+    # Kill/Stop any existing lightauth process
+    - name: Stop Existing LightAuthUserAPI
+      command: /usr/bin/killall lightauthuserapi
+      no_log: True
+      ignore_errors: yes      
+
+    # Create lightauth directory within /etc and dont error if it already exists
+    - name: Creates lightauth config folder
+      file: path=/etc/lightauth state=directory
+      no_log: True
+
+    # Copy across users file to the config directory
+    - name: Copy across config/usr file
+      copy: src=users.csv dest=/etc/lightauth/users.csv owner=root group=root mode=0644 backup=yes
+
+    # Copy across roles file to the config directory
+    - name: Copy across config/role file
+      copy: src=roles.csv dest=/etc/lightauth/roles.csv owner=root group=root mode=0644 backup=yes
+
+    # Copy lightauthuserapi application
+    - name: Copy across lightauthuserapi application
+      copy: src=lightauthuserapi dest=/usr/bin/lightauthuserapi owner=root group=root mode=0755
+
+    # Copy across service definition file
+    - name: Copy across lightauthuserapi service
+      copy: src=lightauthuserapi.service dest=/etc/systemd/system owner=root group=root mode=0777
+
+    # Start and enable the lightauth service 
+    - name: Start and enable the lightauth service
+      service: name=lightauthuserapi enabled=yes state=restarted

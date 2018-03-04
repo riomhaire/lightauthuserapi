@@ -1,0 +1,21 @@
+---
+- hosts: empire
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  tasks:
+    # Stop and disable the lightauthuserapi service 
+    - name: Stop and disable the lightauthuserapi service
+      service: name=lightauthuserapi enabled=no state=stopped
+
+    # Remove service definition file
+    - name: Remove lightauthuserapi service
+      file: path=/etc/systemd/system/lightauthuserapi.service state=absent
+
+    # Remove lightauthuserapi application
+    - name: Remove lightauthuserapi application
+      file: path=/usr/bin/lightauthuserapi state=absent
+
+
+

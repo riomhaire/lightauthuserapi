@@ -1,0 +1,10 @@
+[Unit]
+Description=LightAuth User Service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/lightauthuserapi serve --usersFile /etc/lightauth/users.csv --rolesFile /etc/lightauth/roles.csv --port 3060  
+ExecStop=/usr/bin/killall lightauthuserapi
+
+[Install]
+WantedBy=default.target
