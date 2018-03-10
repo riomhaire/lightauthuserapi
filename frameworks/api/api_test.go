@@ -246,7 +246,7 @@ func TestListUser(t *testing.T) {
 	userName := "listTestUser"
 
 	// Get Current User List
-	numberUser := len(registry.Usecases.ListUsers())
+	numberUser := len(registry.Usecases.ListUsers("", -1, -1))
 
 	// Create - Then Read
 	user := entities.User{}
@@ -258,7 +258,7 @@ func TestListUser(t *testing.T) {
 		t.Errorf("Unexpected creation error - " + err.Error.Error())
 	}
 
-	numberUserAfter := len(registry.Usecases.ListUsers())
+	numberUserAfter := len(registry.Usecases.ListUsers("", -1, -1))
 	if numberUserAfter != (numberUser + 1) {
 		t.Errorf("Expected User List to go - it didnt")
 	}

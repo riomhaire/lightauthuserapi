@@ -35,9 +35,9 @@ func (r *RestAPI) AddCoorsHeader(rw http.ResponseWriter, request *http.Request, 
 	//rw.Header().Add("Access-Control-Allow-Origin", request.Header.Get("Origin"))
 	rw.Header().Add("Access-Control-Allow-Credentials", "true")
 	rw.Header().Add("Access-Control-Allow-Origin", "*")
-	rw.Header().Add("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE")
+	rw.Header().Add("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE")
 	rw.Header().Add("Access-Control-Max-Age", "3600")
-	rw.Header().Add("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, remember-me")
+	rw.Header().Add("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, remember-me, authorization, Authorization")
 
 	if next != nil {
 		next(rw, request)

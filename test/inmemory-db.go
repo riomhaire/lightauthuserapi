@@ -39,7 +39,7 @@ func (db *InMemoryDBInteractor) CreateUser(user entities.User) error {
 	return nil
 }
 
-func (db *InMemoryDBInteractor) LookupUserNames() ([]string, error) {
+func (db *InMemoryDBInteractor) LookupUserNames(search string, page int, pageSize int) ([]string, error) {
 	var s []string
 	for k := range db.userdb {
 		s = append(s, k)

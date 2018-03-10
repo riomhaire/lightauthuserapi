@@ -7,9 +7,11 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/nightlyone/lockfile"
 	"github.com/riomhaire/lightauthuserapi/entities"
@@ -31,6 +33,7 @@ type CSVReaderDatabaseInteractor struct {
 	registry    *usecases.Registry
 	userdb      map[string]entities.User
 	roledb      []entities.Role
+	names       []string
 	initialized bool
 	mux         sync.Mutex
 }
@@ -60,17 +63,37 @@ func (db *CSVReaderDatabaseInteractor) CreateUser(user entities.User) error {
 	}
 	db.userdb[user.Username] = user
 	db.writeUsers()
+	db.rebuildNameIndex()
 	return nil
 }
 
-func (db *CSVReaderDatabaseInteractor) LookupUserNames() ([]string, error) {
+func (db *CSVReaderDatabaseInteractor) LookupUserNames(search string, page int, pageSize int) ([]string, error) {
 	db.lazyLoad()
-	var s []string
-	for k := range db.userdb {
-		s = append(s, k)
+
+	if len(search) > 0 {
+		// How many results
+		minReq := min(pageSize, len(db.names))
+		if minReq == -1 {
+			minReq = len(db.names)
+		}
+		i := 0
+		matchNames := make([]string, 0)
+		before := time.Now()
+		for len(matchNames) < minReq && i < len(db.names) {
+			potentialMatch := db.names[i]
+			if strings.Contains(potentialMatch, search) {
+				matchNames = append(matchNames, potentialMatch)
+			}
+			i++
+		}
+		now := time.Now()
+		diff := now.Sub(before)
+		db.registry.Logger.Log("DEBUG", fmt.Sprintf("Search for '%v' and %v hits took %v", search, len(matchNames), diff))
+
+		return matchNames, nil
 	}
 
-	return s, nil
+	return db.names, nil
 }
 
 func (db *CSVReaderDatabaseInteractor) UpdateUser(user entities.User) error {
@@ -82,6 +105,7 @@ func (db *CSVReaderDatabaseInteractor) UpdateUser(user entities.User) error {
 	}
 	// Flush to file
 	db.writeUsers()
+
 	return nil
 }
 
@@ -94,6 +118,7 @@ func (db *CSVReaderDatabaseInteractor) DeleteUser(user string) error {
 	}
 	// Flush to file
 	db.writeUsers()
+	db.rebuildNameIndex()
 	return nil
 }
 
@@ -148,8 +173,22 @@ func (db *CSVReaderDatabaseInteractor) loadUsers() (map[string]entities.User, er
 			users[user.Username] = user
 		}
 	}
+	db.userdb = users
+	db.rebuildNameIndex()
 	db.registry.Logger.Log("INFO", fmt.Sprintf("#Number of users = %v", len(users)))
 	return users, nil
+}
+
+func (db *CSVReaderDatabaseInteractor) rebuildNameIndex() {
+	names := make([]string, 0)
+
+	// recreate search index
+	for k := range db.userdb {
+		names = append(names, k)
+	}
+	// Sort names
+	sort.Strings(names)
+	db.names = names
 }
 
 func (db *CSVReaderDatabaseInteractor) writeUsers() error {
@@ -233,6 +272,7 @@ func (db *CSVReaderDatabaseInteractor) lazyLoad() {
 	if db.initialized {
 		return
 	}
+	before := time.Now()
 	db.mux.Lock()
 	if db.initialized == false {
 		db.initialized = true
@@ -240,5 +280,21 @@ func (db *CSVReaderDatabaseInteractor) lazyLoad() {
 		db.roledb, _ = db.loadRoles()
 	}
 	db.mux.Unlock()
+	now := time.Now()
+	diff := now.Sub(before)
+	db.registry.Logger.Log("DEBUG", fmt.Sprintf("Load user file took %v", diff))
+}
 
+func max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
 }

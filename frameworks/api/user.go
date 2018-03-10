@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/riomhaire/lightauthuserapi/entities"
@@ -23,7 +24,23 @@ func (r *RestAPI) HandleGenericUser(response http.ResponseWriter, request *http.
 		// Read
 		switch request.Method {
 		case http.MethodGet:
-			users := r.Registry.Usecases.ListUsers()
+			// Extract search and number of results and page
+			queryValues := request.URL.Query()
+			page := -1     // All pages
+			pageSize := -1 // One page
+			search := queryValues.Get("search")
+			val := queryValues.Get("page")
+			i, err := strconv.Atoi(val)
+			if err == nil {
+				page = i
+			}
+			val = queryValues.Get("pageSize")
+			i, err = strconv.Atoi(val)
+			if err == nil {
+				pageSize = i
+			}
+
+			users := r.Registry.Usecases.ListUsers(search, page, pageSize)
 			data, _ = json.Marshal(users)
 		case http.MethodPost:
 			decoder := json.NewDecoder(request.Body)

@@ -4,15 +4,13 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/gorilla/mux"
 	"github.com/riomhaire/lightauthuserapi/frameworks"
 	"github.com/riomhaire/lightauthuserapi/frameworks/api"
 	"github.com/riomhaire/lightauthuserapi/usecases"
 	"github.com/spf13/cobra"
-	"github.com/urfave/negroni"
 )
 
-const VERSION = "LightAuthUserAPI Version 1.0"
+const VERSION = "LightAuthUserAPI Version 1.2"
 
 type Application struct {
 	registry *usecases.Registry
@@ -45,29 +43,6 @@ func (a *Application) Initialize(cmd *cobra.Command, args []string) {
 	// Create API
 	restAPI := api.NewRestAPI(&registry)
 	a.restAPI = &restAPI
-
-	router := mux.NewRouter()
-	negroni := negroni.Classic()
-	restAPI.Negroni = negroni
-
-	// Add handlers
-	router.HandleFunc("/api/v1/user/metrics", restAPI.HandleStatistics).Methods("GET")
-	router.HandleFunc("/metrics", restAPI.HandleStatistics).Methods("GET")
-	router.HandleFunc("/api/v1/user/health", restAPI.HandleHealth).Methods("GET")
-	router.HandleFunc("/health", restAPI.HandleHealth).Methods("GET")
-
-	router.HandleFunc("/api/v1/user/account/{name}", restAPI.HandleSpecificUser).Methods("GET", "PUT", "DELETE")
-	router.HandleFunc("/api/v1/user/account", restAPI.HandleGenericUser).Methods("POST", "GET")
-
-	router.HandleFunc("/api/v1/user/roles", restAPI.HandleReadRoles).Methods("GET")
-
-	// Add Middleware
-	negroni.Use(restAPI.Statistics)
-	negroni.UseFunc(restAPI.RecordCall)       // Calculates per second/minute rates
-	negroni.UseFunc(restAPI.AddWorkerHeader)  // Add which instance
-	negroni.UseFunc(restAPI.AddWorkerVersion) // Which version
-	negroni.UseFunc(restAPI.AddCoorsHeader)   // Add coors
-	negroni.UseHandler(router)
 
 }
 

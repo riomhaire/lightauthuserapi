@@ -27,7 +27,7 @@ type Logger interface {
 
 type StorageInteractor interface {
 	LookupUserByName(username string) (entities.User, error)
-	LookupUserNames() ([]string, error)
+	LookupUserNames(search string, page int, pageSize int) ([]string, error)
 	CreateUser(user entities.User) error
 	UpdateUser(user entities.User) error
 	DeleteUser(user string) error
