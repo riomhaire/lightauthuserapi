@@ -1,6 +1,10 @@
 package usecases
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/riomhaire/lightauthuserapi/frameworks/serviceregistry"
+)
 
 // Configuration containing data from the environment which is used to define program behaviour
 type Configuration struct {
@@ -10,13 +14,18 @@ type Configuration struct {
 	UserStore   string
 	Port        int
 	APIKey      string
+	Host        string
+	Consul      bool
+	ConsulHost  string
+	ConsulId    string // ID of this client
 }
 
 type Registry struct {
-	Configuration     Configuration
-	Logger            Logger
-	StorageInteractor StorageInteractor
-	Usecases          Usecases
+	Configuration           Configuration
+	Logger                  Logger
+	StorageInteractor       StorageInteractor
+	Usecases                Usecases
+	ExternalServiceRegistry serviceregistry.ServiceRegistry
 }
 
 func (c *Configuration) String() string {

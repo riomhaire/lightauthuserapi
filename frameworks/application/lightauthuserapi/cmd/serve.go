@@ -16,6 +16,10 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/riomhaire/lightauthuserapi/frameworks/application/lightauthuserapi/bootstrap"
 	"github.com/spf13/cobra"
@@ -33,6 +37,19 @@ var serveCmd = &cobra.Command{
 		application := bootstrap.Application{}
 
 		application.Initialize(cmd, args)
+
+		c := make(chan os.Signal, 2)
+		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+
+		go func() {
+			<-c
+			log.Println("Shutting Down")
+			// pprof.StopCPUProfile()
+			// //trace.Stop()
+			// tracefile.Close()
+			application.Stop()
+			os.Exit(0)
+		}()
 		application.Run()
 
 	},
@@ -44,5 +61,8 @@ func init() {
 	serveCmd.Flags().StringP("key", "k", "secret", "Secret needed to access api.")
 	serveCmd.Flags().StringP("usersFile", "u", "users.csv", "If User File used this is the one to use - must be r/w.")
 	serveCmd.Flags().StringP("rolesFile", "r", "roles.csv", "If Role File used this is the one to use - must be r/w.")
+
+	serveCmd.Flags().StringP("consulHost", "t", "", "Host where consul resides usually something like http://consul:8500 ")
+	serveCmd.Flags().BoolP("consul", "c", false, "Enable consul support")
 
 }

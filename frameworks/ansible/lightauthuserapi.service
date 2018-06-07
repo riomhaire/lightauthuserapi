@@ -1,9 +1,11 @@
 [Unit]
 Description=LightAuth User Service
+Requires=consul.service
+After=consul.service
 
 [Service]
 Restart=always
-ExecStart=/usr/bin/lightauthuserapi serve --usersFile /etc/lightauth/users.csv --rolesFile /etc/lightauth/roles.csv --port 3060  
+ExecStart=/usr/bin/lightauthuserapi serve --usersFile /etc/lightauth/users.csv --rolesFile /etc/lightauth/roles.csv --port 3060  -c true -t "http://empire:8500"
 ExecStop=/usr/bin/killall lightauthuserapi
 
 [Install]
