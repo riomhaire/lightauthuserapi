@@ -49,6 +49,7 @@ func (a *ConsulServiceRegistry) Register() error {
 */
 func (a *ConsulServiceRegistry) Deregister() error {
 	if a.registry.Configuration.Consul {
+		a.registry.Logger.Log("INFO", fmt.Sprintf("De Registering %v with Consul at %v with %v ", a.id, a.registry.Configuration.ConsulHost, a.baseEndpoint))
 		a.consulClient.DeRegister(a.id)
 	}
 	return nil
