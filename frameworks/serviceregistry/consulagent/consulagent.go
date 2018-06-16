@@ -36,8 +36,7 @@ func (a *ConsulServiceRegistry) Register() error {
 		a.consulClient, _ = consul.NewConsulClient(a.registry.Configuration.ConsulHost)
 		health := fmt.Sprintf("http://%v:%v%v", a.registry.Configuration.Host, a.registry.Configuration.Port, a.healthEndpoint)
 		a.registry.Logger.Log("INFO", fmt.Sprintf("Registering with Consul at %v with %v %v", a.registry.Configuration.ConsulHost, a.baseEndpoint, health))
-
-		a.consulClient.Register(id, a.registry.Configuration.Application, a.registry.Configuration.Host, a.registry.Configuration.Port, a.baseEndpoint, health)
+		a.consulClient.PeriodicRegister(id, a.registry.Configuration.Application, a.registry.Configuration.Host, a.registry.Configuration.Port, a.baseEndpoint, health, 60)
 	}
 	return nil
 
