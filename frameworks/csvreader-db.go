@@ -224,7 +224,11 @@ func (db *CSVReaderDatabaseInteractor) writeUsers() error {
 	// Iterate through
 	for _, v := range db.userdb {
 		record := fmt.Sprintf("%v,%v,%v,%v,%v,%v\n", v.Username, v.Password, v.Enabled, strings.Join(v.Roles, ":"), v.Claim1, v.Claim2)
-		csvfile.Write([]byte(record))
+		_, err = csvfile.Write([]byte(record))
+		if err != nil {
+			log.Fatal(err)
+			return err
+		}
 	}
 
 	return nil

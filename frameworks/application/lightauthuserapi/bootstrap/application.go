@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const VERSION = "LightAuthUserAPI Version 1.3.1"
+const VERSION = "LightAuthUserAPI Version 1.3.2"
 
 type Application struct {
 	registry *usecases.Registry
